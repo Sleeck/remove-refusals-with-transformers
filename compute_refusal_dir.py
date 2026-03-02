@@ -6,36 +6,28 @@ import torch
 from huggingface_hub import HfApi
 from tqdm import tqdm
 from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
-
 SOURCE_MODEL_ID = "Qwen/Qwen3.5-9"
 EXPORT_ROOT = Path("exports")
-
 HF_WRITE_TOKEN = os.getenv("HF_WRITE_TOKEN")
 HF_DESTINATION_REPO_ID = os.getenv("HF_DESTINATION_REPO_ID")
 HF_PRIVATE_REPO = os.getenv("HF_PRIVATE_REPO", "false").lower() in {"1", "true", "yes"}
-
 # settings:
 INSTRUCTIONS_COUNT = 32
 LAYER_POSITION = 0.6
 TOKEN_POSITION = -1
-
-
 def validate_required_env_vars():
     missing = []
     if not HF_WRITE_TOKEN:
         missing.append("HF_WRITE_TOKEN")
     if not HF_DESTINATION_REPO_ID:
         missing.append("HF_DESTINATION_REPO_ID")
-
-    if missing:
+        if missing:
         raise ValueError(
             "Missing required environment variable(s): "
             f"{', '.join(missing)}. "
             "Example: HF_WRITE_TOKEN=hf_xxx HF_DESTINATION_REPO_ID=username/model python3 compute_refusal_dir.py"
         )
-
-
-@torch.inference_mode()
+      @torch.inference_mode()
 def generate(model, bar, toks):
     bar.update(n=1)
     model_inputs = toks.to(model.device)
