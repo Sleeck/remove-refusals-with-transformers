@@ -56,7 +56,16 @@ bar = tqdm(total=max_its)
 
 def generate(toks):
     bar.update(n=1)
-    return model.generate(toks.to(model.device),
+    model_inputs = toks.to(model.device)
+    if hasattr(model_inputs, "input_ids"):
+        model_inputs = dict(model_inputs)
+        return model.generate(**model_inputs,
+                              use_cache=False,
+                              max_new_tokens=1,
+                              return_dict_in_generate=True,
+                              output_hidden_states=True)
+
+    return model.generate(model_inputs,
                           use_cache=False,
                           max_new_tokens=1,
                           return_dict_in_generate=True,
